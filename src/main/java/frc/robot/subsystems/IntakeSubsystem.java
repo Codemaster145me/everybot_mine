@@ -1,13 +1,13 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Robot;
-import com.revrobotics.CANSparkMaxLowLevel;
 
 public class IntakeSubsystem extends SubsystemBase{
 
@@ -66,6 +66,7 @@ public class IntakeSubsystem extends SubsystemBase{
         if(t_in == true){
             intake.set(1);
         }
+        intake.setIdleMode(CANSparkMax.IdleMode.kBrake);
     }
 
     @Override
