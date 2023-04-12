@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -15,25 +11,19 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-/**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
- */
 public class Robot extends TimedRobot {
   IntakeSubsystem intake = new IntakeSubsystem();
   ArmSubsystem arm = new ArmSubsystem();
-
 
   //private Command m_autonomousCommand;
 
   //private RobotContainer m_robotContainer;
   //private DriveTrainSubsystem dts = new DriveTrainSubsystem();
-  public static Joystick driveJoystick = new Joystick(0);
+  public static Joystick driveJoystick = new Joystick(0); 
 
   CANSparkMax rightMotor1 = new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless);
   CANSparkMax rightMotor2 = new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -41,9 +31,9 @@ public class Robot extends TimedRobot {
   CANSparkMax leftMotor2 = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
   
   MotorControllerGroup leftGroup = new MotorControllerGroup(leftMotor1, leftMotor2);
-  
   MotorControllerGroup rightGroup = new MotorControllerGroup(rightMotor1, rightMotor2);
-
+  
+  DifferentialDrive arcadeDrive = new DifferentialDrive(leftGroup, rightGroup);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -112,6 +102,11 @@ public class Robot extends TimedRobot {
     rightMotor2.setIdleMode(IdleMode.kBrake);
     leftMotor1.setIdleMode(IdleMode.kBrake);
     leftMotor2.setIdleMode(IdleMode.kBrake);
+
+    rightMotor1.setSmartCurrentLimit(40);
+    rightMotor2.setSmartCurrentLimit(40);
+    leftMotor1.setSmartCurrentLimit(40);
+    leftMotor2.setSmartCurrentLimit(40);
   }
 
   /** This function is called periodically during operator control. */
@@ -121,21 +116,24 @@ public class Robot extends TimedRobot {
     double speed = -driveJoystick.getRawAxis(1)*0.5; // axis 1, left joystick, [-0.5, 0.5], forward, backwards
     double turn = driveJoystick.getRawAxis(4)*0.3; // axis 4, right joystick, [-0.3, 0.3], left, right
 
-    double left = speed - turn;  
+    arcadeDrive.setDeadband(0.1);
+    arcadeDrive.arcadeDrive(speed, turn);
+
+    /*double left = speed - turn;  
     double right = speed + turn;
 
     leftGroup.set(left);
-    rightGroup.set(right);
+    rightGroup.set(right);*/
     
     double roundedSpeed = Math.round(speed * 100.0) / 100.0; 
-    double roundedRight = Math.round(right * 100.0) / 100.0;
-    double roundedLeft = Math.round(left * 100.0) / 100.0;
+    double roundedRight = Math.round(turn * 100.0) / 100.0;
+    double roundedLeft = Math.round(turn * 100.0) / 100.0;
     
     SmartDashboard.putNumber("drive forward power (%)", roundedSpeed);
     SmartDashboard.putNumber("drive right power (%)", roundedRight);
     SmartDashboard.putNumber("drive left power (%)", roundedLeft);
-    
   }
+
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
